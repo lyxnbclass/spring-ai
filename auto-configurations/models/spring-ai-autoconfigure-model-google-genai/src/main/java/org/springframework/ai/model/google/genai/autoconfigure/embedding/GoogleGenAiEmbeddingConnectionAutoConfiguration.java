@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -46,13 +47,21 @@ public class GoogleGenAiEmbeddingConnectionAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public GoogleGenAiEmbeddingConnectionDetails googleGenAiEmbeddingConnectionDetails(
-			GoogleGenAiEmbeddingConnectionProperties connectionProperties) throws IOException {
+			GoogleGenAiEmbeddingConnectionProperties connectionProperties, Environment environment) throws IOException {
 
 		var connectionBuilder = GoogleGenAiEmbeddingConnectionDetails.builder();
 
-		if (StringUtils.hasText(connectionProperties.getApiKey())) {
+		String apiKey = connectionProperties.getApiKey();
+		if (!StringUtils.hasText(apiKey) && !connectionProperties.isVertexAi()
+				&& !Boolean.TRUE.equals(environment.getProperty("spring.ai.google.genai.vertex-ai", Boolean.class))
+				&& !StringUtils.hasText(connectionProperties.getProjectId())
+				&& !StringUtils.hasText(connectionProperties.getLocation())) {
+			apiKey = environment.getProperty("spring.ai.google.genai.api-key");
+		}
+
+		if (StringUtils.hasText(apiKey)) {
 			// Gemini Developer API mode
-			connectionBuilder.apiKey(connectionProperties.getApiKey());
+			connectionBuilder.apiKey(apiKey);
 		}
 		else {
 			// Vertex AI mode

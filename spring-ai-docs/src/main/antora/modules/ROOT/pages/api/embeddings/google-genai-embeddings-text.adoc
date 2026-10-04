@@ -84,7 +84,9 @@ The prefix `spring.ai.google.genai.embedding` is used as the property prefix tha
 
 [NOTE]
 ====
-The connection properties are shared with the Google GenAI Chat module. If you're using both chat and embeddings, you only need to configure the connection once using either `spring.ai.google.genai` prefix (for chat) or `spring.ai.google.genai.embedding` prefix (for embeddings).
+The embedding connection uses `spring.ai.google.genai.api-key` when `spring.ai.google.genai.embedding.api-key` and Vertex AI settings are not configured.
+An embedding-specific API key takes precedence over the shared key.
+If you use both chat and embeddings with the Gemini Developer API, you can configure the shared key once.
 ====
 
 [cols="3,5,1", stripes=even]
